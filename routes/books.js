@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 
 const Book = require('../models/Book');
 const { validateBook, validateBookUpdate, ensureGenreExists, createValidationError } = require('../middleware/validate');
+const { requireAuth, requireRole } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -78,7 +79,7 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/', requireAuth, requireRole('librarian'), async (req, res, next) => {
   try {
     const validationError = validateBook(req.body);
     if (validationError) {
@@ -101,7 +102,7 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-router.put('/:id', async (req, res, next) => {
+router.put('/:id', requireAuth, requireRole('librarian'), async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -140,7 +141,7 @@ router.put('/:id', async (req, res, next) => {
   }
 });
 
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', requireAuth, requireRole('librarian'), async (req, res, next) => {
   try {
     const { id } = req.params;
 

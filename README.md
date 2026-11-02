@@ -10,9 +10,25 @@ A MongoDB-backed library catalog API that exposes CRUD endpoints for books and g
 ## Setup
 
 1. Install dependencies with `npm install`.
-2. Copy `.env.example` to `.env` and set `MONGODB_URI` to your MongoDB connection string.
+2. Copy `.env.example` to `.env`, set `MONGODB_URI` to your MongoDB connection string, and replace `AUTH_TOKEN_SECRET` with a long random secret.
 3. Run `npm run seed` to populate sample catalog data.
 4. Start the API with `npm start`.
+
+The seed creates one librarian account: `librarian@library.local` with password `LibraryDemo123!`. These are test credentials; set `LIBRARIAN_EMAIL` and `LIBRARIAN_PASSWORD` before seeding a non-demo environment. Public registration creates patron accounts only.
+
+## Authentication and Authorization
+
+- `POST /api/auth/register` — create a patron account with `username`, `email`, and `password` (minimum 8 characters).
+- `POST /api/auth/login` — verify credentials and set the signed-in session cookie.
+- `POST /api/auth/logout` — clear the session cookie from the client.
+- `GET /api/users/profile` — return the authenticated caller's own profile.
+- `POST /books`, `PUT /books/:id`, and `DELETE /books/:id` — require a librarian session.
+
+Passwords are hashed with bcrypt before they are stored. Send JSON credentials to register or log in, then allow the client to retain and send cookies for subsequent requests.
+
+## Token Storage
+
+The API stores its JWT in an `authToken` cookie marked `HttpOnly`, `SameSite=Strict`, and `Secure` in production. The browser sends the cookie with matching requests, but client-side JavaScript cannot read its value. This reduces the chance that a cross-site scripting (XSS) bug can steal a bearer token, unlike a token saved in `localStorage`; it does not prevent XSS from making requests as the signed-in user while the page is compromised. `SameSite=Strict` provides a baseline defense against cross-site request forgery (CSRF), but applications that need cross-site embedding or broader cookie use should add explicit CSRF protection and origin checks. Cookies also require clients to preserve/send credentials, which is less convenient for command-line clients than an `Authorization` header. Tokens expire after one hour. Logout clears the cookie on the client; there is no server-side token blocklist, so a copied token remains valid until it expires.
 
 ## API Endpoints
 

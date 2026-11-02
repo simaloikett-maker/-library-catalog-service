@@ -4,6 +4,9 @@ require('dotenv').config();
 
 const booksRouter = require('./routes/books');
 const genresRouter = require('./routes/genres');
+const authRouter = require('./routes/auth');
+const usersRouter = require('./routes/users');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 
@@ -20,6 +23,7 @@ async function connectDatabase() {
 }
 
 app.use(express.json({ limit: '1mb' }));
+app.use(cookieParser());
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
@@ -27,6 +31,8 @@ app.get('/health', (req, res) => {
 
 app.use('/books', booksRouter);
 app.use('/genres', genresRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/users', usersRouter);
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });

@@ -3,6 +3,10 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const Book = require('./models/Book');
 const Genre = require('./models/Genre');
+const User = require('./models/User');
+
+const librarianEmail = (process.env.LIBRARIAN_EMAIL || 'librarian@library.local').trim().toLowerCase();
+const librarianPassword = process.env.LIBRARIAN_PASSWORD || 'LibraryDemo123!';
 
 const genreData = [
   { name: 'Fantasy', slug: 'fantasy' },
@@ -35,10 +39,28 @@ async function seed() {
   if (!uri) {
     throw new Error('MONGODB_URI is required. Add it to your .env file before seeding.');
   }
+  if (librarianPassword.length < 8) {
+    throw new Error('LIBRARIAN_PASSWORD must be at least 8 characters.');
+  }
 
   try {
     await mongoose.connect(uri);
     await Promise.all([Book.deleteMany({}), Genre.deleteMany({})]);
+
+    let librarian = await User.findOne({ email: librarianEmail });
+    if (!librarian) {
+      librarian = new User({
+        username: 'librarian',
+        email: librarianEmail,
+        password: librarianPassword,
+        role: 'librarian',
+      });
+    } else {
+      librarian.username = 'librarian';
+      librarian.password = librarianPassword;
+      librarian.role = 'librarian';
+    }
+    await librarian.save();
 
     const genres = await Genre.insertMany(genreData);
     const genreIds = new Map(genres.map((genre) => [genre.slug, genre._id]));
@@ -48,7 +70,7 @@ async function seed() {
     }));
 
     await Book.insertMany(books);
-    console.log(`Seeded ${genres.length} genres and ${books.length} books.`);
+    console.log(`Seeded ${genres.length} genres, ${books.length} books, and one librarian account.`);
   } finally {
     if (mongoose.connection.readyState !== 0) {
       await mongoose.disconnect();
