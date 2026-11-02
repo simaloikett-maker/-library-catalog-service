@@ -31,7 +31,7 @@ function validateBook(payload, options = {}) {
     return createValidationError('body', 'must be an object');
   }
 
-  if (Object.keys(payload).length === 0) {
+  if (Object.keys(payload).length === 0 && partial) {
     return createValidationError('body', 'must not be empty');
   }
 
@@ -89,7 +89,7 @@ function validateGenre(payload, options = {}) {
     return createValidationError('body', 'must be an object');
   }
 
-  if (Object.keys(payload).length === 0) {
+  if (Object.keys(payload).length === 0 && partial) {
     return createValidationError('body', 'must not be empty');
   }
 

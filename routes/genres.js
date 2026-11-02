@@ -79,16 +79,17 @@ router.get('/:id', async (req, res, next) => {
 
 router.post('/', async (req, res, next) => {
   try {
-    const payload = {
-      ...req.body,
-      name: req.body.name,
-      slug: req.body.slug || buildSlug(req.body.name),
-    };
-
-    const validationError = validateGenre(payload);
+    const validationError = validateGenre(req.body);
     if (validationError) {
       return next(validationError);
     }
+
+    const payload = {
+      ...req.body,
+      slug: Object.prototype.hasOwnProperty.call(req.body, 'slug')
+        ? req.body.slug
+        : buildSlug(req.body.name),
+    };
 
     const duplicateError = await ensureUniqueGenre(payload);
     if (duplicateError) {

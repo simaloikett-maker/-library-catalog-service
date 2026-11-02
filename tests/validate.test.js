@@ -22,6 +22,13 @@ test('validateBook rejects missing title', () => {
   assert.match(err.message, /title/i);
 });
 
+test('validateBook identifies the missing title in an empty create payload', () => {
+  const err = validateBook({});
+
+  assert.equal(err.status, 400);
+  assert.match(err.message, /title/i);
+});
+
 test('validateBook rejects non-integer totalCopies', () => {
   const body = makeBookBody();
   body.totalCopies = 2.5;
@@ -33,6 +40,13 @@ test('validateBook rejects non-integer totalCopies', () => {
 
 test('validateGenre rejects empty name', () => {
   const err = validateGenre({ name: '   ' });
+  assert.equal(err.status, 400);
+  assert.match(err.message, /name/i);
+});
+
+test('validateGenre identifies the missing name in an empty create payload', () => {
+  const err = validateGenre({});
+
   assert.equal(err.status, 400);
   assert.match(err.message, /name/i);
 });

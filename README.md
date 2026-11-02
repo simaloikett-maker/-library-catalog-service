@@ -36,17 +36,17 @@ The API stores its JWT in an `authToken` cookie marked `HttpOnly`, `SameSite=Str
 
 - `GET /genres` — list all genres
 - `GET /genres/:id` — get a single genre by ID
-- `POST /genres` — create a genre
-- `PUT /genres/:id` — update a genre
-- `DELETE /genres/:id` — delete a genre
+- `POST /genres` — create a genre (201)
+- `PUT /genres/:id` — update a genre (200)
+- `DELETE /genres/:id` — delete a genre (200; returns 400 if books still reference it)
 
 ### Books
 
 - `GET /books` — list books with optional filters and pagination
 - `GET /books/:id` — get a single book by ID
-- `POST /books` — create a book
-- `PUT /books/:id` — update a book
-- `DELETE /books/:id` — delete a book
+- `POST /books` — create a book (201; librarian session required)
+- `PUT /books/:id` — update a book (200; librarian session required)
+- `DELETE /books/:id` — delete a book (200; librarian session required)
 
 ## Book Query Parameters
 
